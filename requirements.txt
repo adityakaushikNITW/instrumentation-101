@@ -10,4 +10,5 @@ opentelemetry-instrumentation-fastapi==0.43b0
 opentelemetry-exporter-otlp==1.22.0
 opentelemetry-instrumentation-sqlalchemy==0.43b0
 opentelemetry-exporter-otlp-proto-grpc==1.22.0
-opentelemetry-instrumentation==0.43b0 
+opentelemetry-instrumentation==0.43b0
+ariadne==0.20.1 

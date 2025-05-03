@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . .
+
+# Set Python path to include the root directory
+ENV PYTHONPATH=/app
+
+# The command will be overridden by docker-compose
+CMD ["python", "run_gql.py"] 
