@@ -1,0 +1,6 @@
+include README.md
+include requirements.txt
+include docker-compose.yml
+include otel-collector-config.yaml
+include Dockerfile
+include setup.py 
