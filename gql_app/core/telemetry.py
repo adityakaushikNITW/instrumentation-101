@@ -10,8 +10,51 @@ from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry._logs import set_logger_provider
+from ariadne.types import Extension
 import logging
 import os
+import time
+
+class GraphQLMetricsExtension(Extension):
+    def __init__(self):
+        self.meter = metrics.get_meter(__name__)
+        # Create metrics
+        self.query_counter = self.meter.create_counter(
+            "graphql.queries.total",
+            description="Total number of GraphQL queries"
+        )
+        self.mutation_counter = self.meter.create_counter(
+            "graphql.mutations.total",
+            description="Total number of GraphQL mutations"
+        )
+        self.error_counter = self.meter.create_counter(
+            "graphql.errors.total",
+            description="Total number of GraphQL errors"
+        )
+        self.duration_histogram = self.meter.create_histogram(
+            "graphql.operation.duration",
+            description="Duration of GraphQL operations in seconds",
+            unit="s"
+        )
+        self.start_time = None
+
+    def request_started(self, context):
+        self.start_time = time.time()
+        # Get the operation type from the context
+        operation_type = context.get("operation_type")
+        if operation_type == "query":
+            self.query_counter.add(1)
+        elif operation_type == "mutation":
+            self.mutation_counter.add(1)
+
+    def format(self, context):
+        if self.start_time:
+            duration = time.time() - self.start_time
+            self.duration_histogram.record(duration)
+            self.start_time = None
+
+        if context.get("errors"):
+            self.error_counter.add(len(context["errors"]))
 
 def setup_telemetry():
     # Configure resource

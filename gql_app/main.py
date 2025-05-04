@@ -1,6 +1,7 @@
 from ariadne import make_executable_schema, load_schema_from_path, ObjectType, QueryType, MutationType
 from ariadne.asgi import GraphQL
-from gql_app.core.telemetry import setup_telemetry
+from ariadne.asgi.handlers import GraphQLHTTPHandler
+from gql_app.core.telemetry import setup_telemetry, GraphQLMetricsExtension
 from gql_app.db.database import engine
 from gql_app.db.models import Base
 from gql_app.api.resolvers import (
@@ -44,5 +45,8 @@ schema = make_executable_schema(
     parking_record
 )
 
+# Create HTTP handler with metrics extension
+http_handler = GraphQLHTTPHandler(extensions=[GraphQLMetricsExtension])
+
 # Create ASGI application
-app = GraphQL(schema, debug=True) 
+app = GraphQL(schema, debug=True, http_handler=http_handler) 
